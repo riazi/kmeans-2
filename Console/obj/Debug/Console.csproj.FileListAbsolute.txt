@@ -1,0 +1,6 @@
+D:\Dropbox\Programacion\KMeans\Console\bin\Debug\Console.exe.config
+D:\Dropbox\Programacion\KMeans\Console\bin\Debug\Console.exe
+D:\Dropbox\Programacion\KMeans\Console\bin\Debug\Console.pdb
+D:\Dropbox\Programacion\KMeans\Console\obj\Debug\Console.csprojResolveAssemblyReference.cache
+D:\Dropbox\Programacion\KMeans\Console\obj\Debug\Console.exe
+D:\Dropbox\Programacion\KMeans\Console\obj\Debug\Console.pdb
