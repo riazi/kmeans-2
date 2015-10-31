@@ -14,6 +14,7 @@ namespace Console
         private const int sigma = 1;
         private const int k = 4;
         private const bool predef = true;
+        private const int dimension = 8;
 
         [STAThread]
         static void Main(string[] args) // Entry-Point
@@ -29,22 +30,22 @@ namespace Console
 
             #region Parse Data
             string[] predata = File.ReadAllLines(route);
-            int[,] data = new int[predata.Length, 8];
+            int[,] data = new int[predata.Length, dimension];
             for (int i = 0; i < predata.Length; i++)
             {
                 string[] bar = predata[i].Split(',');
-                for (int j = 0; j < 8; j++)
+                for (int j = 0; j < dimension; j++)
                 {
-                    data[i, j] = Int32.Parse(bar[j]);
+                    data[i, j] = Int32.Parse(bar[j]); // THE ARRAY OF THE DATA
                 }
             }
             #endregion
 
             #region Get Centroids
-            int[,] centroids = new int[k, 8];
+            decimal[,] centroids = new decimal[k, 8];
             if (!predef)
             {                
-                for (int ii = 0; ii < k; ii++)
+                for (int ii = 0; ii < k; ii++) // RANDOM Centroids
                 {
                     Random bar = new Random();
                     int rand = bar.Next(0, data.GetUpperBound(0) + 1);
@@ -53,7 +54,7 @@ namespace Console
             }
             else
             {
-                for (int jj = 0; jj < k; jj++)
+                for (int jj = 0; jj < k; jj++) // Picking centroids for the exercise
                 {
                     copyArrayRow(data, ref centroids, jj, jj);
                 }
@@ -61,10 +62,21 @@ namespace Console
             #endregion
 
             #region Assign To Centroids
-            int[,] groups = new int[data.GetUpperBound(0) + 1, 2];
-            for (int kk = 0; kk < data.GetUpperBound(0) + 1; kk++)
+            int[] groups = new int[data.GetUpperBound(0) + 1]; // Store the groups
+            for (int kk = 0; kk < data.GetUpperBound(0) + 1; kk++) // Navigate through all the points
             {
-                
+                decimal dist = Decimal.MaxValue;
+                int group = 0;
+                for (int iii = 0; iii < k; iii++) // Navigate through all the centroids
+                {
+                    decimal qux = eucDist(data, centroids, kk, iii);
+                    if (qux < dist) // Get the lower distance
+                    {
+                        dist = qux;
+                        group = iii;
+                    }
+                }
+                groups[kk] = group; 
             }
             #endregion
         }
@@ -74,21 +86,21 @@ namespace Console
             public decimal x;
             public decimal y;
         }
-
-        static void copyArrayRow(int[,] arrayInput, ref int[,] arrayOutput, int inRow, int outRow)
+        static void copyArrayRow(int[,] arrayInput, ref decimal[,] arrayOutput, int inRow, int outRow)
         {
             for (int i = 0; i < 8; i++)
             {
                 arrayOutput[outRow, i] = arrayInput[inRow, i];
             }              
         }
-        static decimal eucDist(Point inPoint1, Point inPoint2)
+        static decimal eucDist(int[,] p1, decimal[,] p2, int row1, int row2)
         {
-            decimal foox = inPoint1.x - inPoint2.x;
-            decimal fooy = inPoint1.y - inPoint2.y;
-            decimal sqrx = foox * foox;
-            decimal sqry = fooy * fooy;
-            return (decimal) Math.Sqrt( (double) (sqrx + sqry));
+            decimal foo = 0;
+            for (int i = 0; i < 8; i++)
+            {
+                foo += (p1[row1, i] - p2[row2, i]) * (p1[row1, i] - p2[row2, i]);
+            }
+            return (decimal) Math.Sqrt((double)foo);
         }
     }
 }
