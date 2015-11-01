@@ -80,7 +80,7 @@ namespace Console
                 groups[kk, 1] = group; // Assign the group
             }
             #endregion
-            printArray(groups);
+
             #region Sort array (Optimization movement)
             int[,] tempArray = new int[data.GetUpperBound(0) + 1, 2];
             int grp = 0;
@@ -103,15 +103,27 @@ namespace Console
                 }
             }
             groups = tempArray;
-            #endregion
-            printArray(groups);
+            #endregion // MIGHT BE UNNECESARY
+
             #region Recalculate Centroids
-
-            for (int jjjj = 0; jjjj < data.GetUpperBound(0); jjjj++) // x1 + x2 + x3 + x4 / 4, y1 + y2 + y3 + y4 / 4
+            for (int iiii = 0; iiii < k; iiii++) // GROUP ARRAY aKa centroid
             {
-
+                for (int dim = 0; dim < data.GetUpperBound(1); dim++) // FIRST GET THE MEAN OF THE FIRST DIMENSION
+                {
+                    decimal mean = 0;
+                    int count = 0;
+                    for (int jjj = 0; jjj < data.GetUpperBound(0); jjj++) // NAVIGATE THROUGH THE GROUP ARRAY
+                    {
+                        if (groups[jjj, 1] == iiii) // IS THE INDEX jjj IN THE GROUP iiii???
+                        {
+                            count++;
+                            mean += data[groups[jjj, 0], dim];
+                        }
+                    }
+                    mean = mean / count;
+                    centroids[iiii, dim] = mean;
+                }
             }
-
             #endregion
         }
 
