@@ -36,7 +36,7 @@ namespace Console
                 string[] bar = predata[i].Split(',');
                 for (int j = 0; j < dimension; j++)
                 {
-                    data[i, j] = Int32.Parse(bar[j]); // THE ARRAY OF THE DATA
+                    data[i, j] = int.Parse(bar[j]); // THE ARRAY OF THE DATA
                 }
             }
             #endregion
@@ -62,7 +62,7 @@ namespace Console
             #endregion
 
             #region Assign To Centroids
-            int[] groups = new int[data.GetUpperBound(0) + 1]; // Store the groups
+            int[,] groups = new int[data.GetUpperBound(0) + 1, 2]; // Store the data X groups
             for (int kk = 0; kk < data.GetUpperBound(0) + 1; kk++) // Navigate through all the points
             {
                 decimal dist = Decimal.MaxValue;
@@ -76,8 +76,42 @@ namespace Console
                         group = iii;
                     }
                 }
-                groups[kk] = group; 
+                groups[kk, 0] = kk; // Assign the data index corresponding to the data array
+                groups[kk, 1] = group; // Assign the group
             }
+            #endregion
+            printArray(groups);
+            #region Sort array (Optimization movement)
+            int[,] tempArray = new int[data.GetUpperBound(0) + 1, 2];
+            int grp = 0;
+            int tempInd = 0;
+            int mainInd = 0;
+            while (grp <= k)
+            {
+                if (groups[mainInd, 1] == grp)
+                {
+                    tempArray[tempInd, 0] = groups[mainInd, 0];
+                    tempArray[tempInd, 1] = grp;
+                    groups[mainInd, 1] = k + 1;
+                    tempInd++;
+                }
+                mainInd++;
+                if (mainInd == data.GetUpperBound(0))
+                {
+                    grp++;
+                    mainInd = 0;
+                }
+            }
+            groups = tempArray;
+            #endregion
+            printArray(groups);
+            #region Recalculate Centroids
+
+            for (int jjjj = 0; jjjj < data.GetUpperBound(0); jjjj++) // x1 + x2 + x3 + x4 / 4, y1 + y2 + y3 + y4 / 4
+            {
+
+            }
+
             #endregion
         }
 
@@ -101,6 +135,20 @@ namespace Console
                 foo += (p1[row1, i] - p2[row2, i]) * (p1[row1, i] - p2[row2, i]);
             }
             return (decimal) Math.Sqrt((double)foo);
+        }
+        static void printArray(int[,] array)
+        {
+            System.Console.Clear();
+            System.Console.WriteLine("d X G");
+            for (int i = 0; i < array.GetUpperBound(0); i++)
+            {
+                for (int j = 0; j <= array.GetUpperBound(1); j++)
+                {
+                    System.Console.Write(array[i, j].ToString() + " ");
+                }
+                System.Console.WriteLine(" ");
+            }
+            System.Console.ReadKey();
         }
     }
 }
