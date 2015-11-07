@@ -53,10 +53,6 @@ namespace Console
                 int[,] groups = centAssign(data, centroids, k);
                 #endregion
 
-                #region Calculate Error
-                //error = 
-                #endregion
-
                 #region Recalculate Centroids
                 newCentroids = centRecalc(data, groups, k);
                 #endregion

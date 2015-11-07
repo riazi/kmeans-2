@@ -6,12 +6,21 @@ namespace Console
 {
     class KMeans
     {
+        private bool initializated = false;
         /// <summary>
-        /// Constructor
+        /// Constructors
         /// </summary>
         public KMeans()
         {
 
+        }
+        public bool isInitializated()
+        {
+            return initializated;
+        }
+        public bool Iterate()
+        {
+            
         }
     }
 }
