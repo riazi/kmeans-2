@@ -4,3 +4,9 @@ D:\Dropbox\Programacion\KMeans\Console\bin\Debug\Console.pdb
 D:\Dropbox\Programacion\KMeans\Console\obj\Debug\Console.csprojResolveAssemblyReference.cache
 D:\Dropbox\Programacion\KMeans\Console\obj\Debug\Console.exe
 D:\Dropbox\Programacion\KMeans\Console\obj\Debug\Console.pdb
+C:\Users\user\Dropbox\Programacion\kmeans\Console\bin\Debug\Console.exe.config
+C:\Users\user\Dropbox\Programacion\kmeans\Console\obj\Debug\Console.exe
+C:\Users\user\Dropbox\Programacion\kmeans\Console\obj\Debug\Console.pdb
+C:\Users\user\Dropbox\Programacion\kmeans\Console\bin\Debug\Console.exe
+C:\Users\user\Dropbox\Programacion\kmeans\Console\bin\Debug\Console.pdb
+C:\Users\user\Dropbox\Programacion\kmeans\Console\obj\Debug\Console.csprojResolveAssemblyReference.cache

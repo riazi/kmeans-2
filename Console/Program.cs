@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 //using System.Drawing;
 using System.Windows.Forms;
 using System.IO;
+using System.Collections;
 
 namespace Console
 {
@@ -13,8 +14,10 @@ namespace Console
     {
         private const int sigma = 1;
         private const int k = 4;
-        private const bool predef = true;
+        private const bool random = true;
         private const int dimension = 8;
+        private const decimal errorTolerance = 0.0000000001M;
+        private bool clustered = false;
 
         [STAThread]
         static void Main(string[] args) // Entry-Point
@@ -42,96 +45,37 @@ namespace Console
             #endregion
 
             #region Get Centroids
-            decimal[,] centroids = new decimal[k, 8];
-            if (!predef)
-            {                
-                for (int ii = 0; ii < k; ii++) // RANDOM Centroids
-                {
-                    Random bar = new Random();
-                    int rand = bar.Next(0, data.GetUpperBound(0) + 1);
-                    copyArrayRow(data, ref centroids, rand, ii);
-                }
-            }
-            else
-            {
-                for (int jj = 0; jj < k; jj++) // Picking centroids for the exercise
-                {
-                    copyArrayRow(data, ref centroids, jj, jj);
-                }
-            }
+            decimal[,] centroids = getCentroids(data, k, random);
             #endregion
+            
+            decimal[] error = new decimal[0];
+            decimal[,] newCentroids = centroids;
 
-            #region Assign To Centroids
-            int[,] groups = new int[data.GetUpperBound(0) + 1, 2]; // Store the data X groups
-            for (int kk = 0; kk < data.GetUpperBound(0) + 1; kk++) // Navigate through all the points
+            do
             {
-                decimal dist = Decimal.MaxValue;
-                int group = 0;
-                for (int iii = 0; iii < k; iii++) // Navigate through all the centroids
-                {
-                    decimal qux = eucDist(data, centroids, kk, iii);
-                    if (qux < dist) // Get the lower distance
-                    {
-                        dist = qux;
-                        group = iii;
-                    }
-                }
-                groups[kk, 0] = kk; // Assign the data index corresponding to the data array
-                groups[kk, 1] = group; // Assign the group
-            }
-            #endregion
+                centroids = newCentroids;
+                newCentroids = null;
+                #region Assign To Centroids
+                int[,] groups = centAssign(data, centroids, k);
+                #endregion
 
-            #region Sort array (Optimization movement)
-            int[,] tempArray = new int[data.GetUpperBound(0) + 1, 2];
-            int grp = 0;
-            int tempInd = 0;
-            int mainInd = 0;
-            while (grp <= k)
-            {
-                if (groups[mainInd, 1] == grp)
-                {
-                    tempArray[tempInd, 0] = groups[mainInd, 0];
-                    tempArray[tempInd, 1] = grp;
-                    groups[mainInd, 1] = k + 1;
-                    tempInd++;
-                }
-                mainInd++;
-                if (mainInd == data.GetUpperBound(0))
-                {
-                    grp++;
-                    mainInd = 0;
-                }
-            }
-            groups = tempArray;
-            #endregion // MIGHT BE UNNECESARY
+                #region Calculate Error
+                //error = 
+                #endregion
 
-            #region Recalculate Centroids
-            for (int iiii = 0; iiii < k; iiii++) // GROUP ARRAY aKa centroid
-            {
-                for (int dim = 0; dim < data.GetUpperBound(1); dim++) // FIRST GET THE MEAN OF THE FIRST DIMENSION
-                {
-                    decimal mean = 0;
-                    int count = 0;
-                    for (int jjj = 0; jjj < data.GetUpperBound(0); jjj++) // NAVIGATE THROUGH THE GROUP ARRAY
-                    {
-                        if (groups[jjj, 1] == iiii) // IS THE INDEX jjj IN THE GROUP iiii???
-                        {
-                            count++;
-                            mean += data[groups[jjj, 0], dim];
-                        }
-                    }
-                    mean = mean / count;
-                    centroids[iiii, dim] = mean;
-                }
-            }
-            #endregion
+                #region Recalculate Centroids
+                newCentroids = centRecalc(data, groups, k);
+                #endregion
+
+                #region Calculate Error
+
+                addRow(ref error, centError(data, centroids, groups));
+
+                #endregion
+
+            } while (!compareArrays(centroids, newCentroids, errorTolerance));
         }
 
-        struct Point
-        {
-            public decimal x;
-            public decimal y;
-        }
         static void copyArrayRow(int[,] arrayInput, ref decimal[,] arrayOutput, int inRow, int outRow)
         {
             for (int i = 0; i < 8; i++)
@@ -139,14 +83,14 @@ namespace Console
                 arrayOutput[outRow, i] = arrayInput[inRow, i];
             }              
         }
-        static decimal eucDist(int[,] p1, decimal[,] p2, int row1, int row2)
+        static decimal eucDist(int[,] point1, decimal[,] point2, int row1, int row2, bool squared = true)
         {
-            decimal foo = 0;
-            for (int i = 0; i < 8; i++)
+            decimal distance = 0;
+            for (int i = 0; i < point1.GetUpperBound(1); i++)
             {
-                foo += (p1[row1, i] - p2[row2, i]) * (p1[row1, i] - p2[row2, i]);
+                distance += square(point1[row1, i] - point2[row2, i]); // Squared
             }
-            return (decimal) Math.Sqrt((double)foo);
+            return squared ? distance : (decimal) Math.Sqrt( (double) distance);//(decimal) Math.Sqrt((double)distance);
         }
         static void printArray(int[,] array)
         {
@@ -161,6 +105,124 @@ namespace Console
                 System.Console.WriteLine(" ");
             }
             System.Console.ReadKey();
+        }
+        static decimal[,] getCentroids(int[,] data, int nCent, bool random = true)
+        {
+            decimal[,] centroids = new decimal[nCent, data.GetUpperBound(1) + 1];
+            if (random)
+            {                
+                Random foo = new Random();
+                for (int i = 0; i < k; i++)
+                {
+                    int rand = foo.Next(0, data.GetUpperBound(0) + 1);
+                    copyArrayRow(data, ref centroids, rand, i);
+                }
+            }
+            else
+            {
+                for (int i = 0; i < k; i++)
+                {
+                    copyArrayRow(data, ref centroids, i, i);
+                }
+            }
+
+            return centroids;
+        }
+        static int[,] centAssign(int[,] data, decimal[,] centroids, int nCent) // The array is DATAITEMS X GROUPASSIGNED
+        {
+            int[,] groups = new int[data.GetUpperBound(0), 2];
+            for (int i = 0; i < data.GetUpperBound(0); i++) // Navigate through all the points
+            {
+                decimal dist = decimal.MaxValue;
+                int group = 0;
+                for (int j = 0; j < nCent; j++) // Calculate all the dist to all centroids
+                {
+                    decimal foo = eucDist(data, centroids, i, j);
+                    if (foo < dist)
+                    {
+                        dist = foo;
+                        group = j;
+                    }
+                }
+                groups[i, 0] = i; // Data index referred to data array
+                groups[i, 1] = group; // 
+            }
+
+            return groups;
+        }
+        static decimal[,] centRecalc(int[,] data, int[,] groups, int nCent)
+        {
+            decimal[,] centroids = new decimal[nCent, data.GetUpperBound(1)];
+            for (int i = 0; i < nCent; i++) // For each centroid
+            {
+                for (int dim = 0; dim < data.GetUpperBound(1); dim++) // Mean for each dimension
+                {
+                    decimal mean = 0;
+                    int count = 0;
+                    for (int j = 0; j < data.GetUpperBound(0); j++) // Navigate through all the data
+                    {
+                        if (groups[j, 1] == i) // Is data index j in the centroid i??
+                        {
+                            count++;
+                            mean += data[groups[j, 0], dim];
+                        }
+                    }
+                    mean = mean / count;
+                    centroids[i, dim] = mean;
+                }
+            }
+
+            return centroids;
+        }
+        static decimal centError(int[,] data, decimal[,] centroids, int[,] groups)
+        {
+            decimal error = 0;
+            for (int i = 0; i < centroids.GetUpperBound(0); i++)
+            {
+                for (int j = 0; j < data.GetUpperBound(0); j++)
+                {
+                    if (groups[j, 1] != i)
+                        continue;
+                    error += eucDist(data, centroids, groups[j, 0], i, true);
+                }
+            }
+            return error;
+        }
+        static bool compareArrays(decimal[,] array1, decimal[,] array2, decimal errorTol)
+        {
+            for (int i = 0; i < array1.GetUpperBound(0); i++)
+            {
+                for (int j = 0; j < array1.GetUpperBound(1); j++)
+                {
+                    if (Math.Abs(array1[i, j] - array2[i, j]) > errorTol)
+                    {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+        static void addRow(ref decimal[] input, decimal rowValue)
+        {
+            
+            decimal[] newArr = new decimal[input.Length + 1];
+            if (input == null)
+            {
+                newArr[0] = rowValue;
+            }
+            else
+            {
+                for (int i = 0; i < input.Length; i++)
+                {
+                    newArr[i] = input[i];
+                }
+                newArr[input.Length] = rowValue;
+            }
+            input = newArr;
+        }
+        static decimal square(decimal number1)
+        {
+            return number1 * number1;
         }
     }
 }
