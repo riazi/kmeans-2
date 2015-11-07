@@ -1,12 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-//using System.Drawing;
 using System.Windows.Forms;
 using System.IO;
-using System.Collections;
 
 namespace Console
 {
@@ -90,7 +84,7 @@ namespace Console
             {
                 distance += square(point1[row1, i] - point2[row2, i]); // Squared
             }
-            return squared ? distance : (decimal) Math.Sqrt( (double) distance);//(decimal) Math.Sqrt((double)distance);
+            return squared ? distance : (decimal) Math.Sqrt( (double) distance);
         }
         static void printArray(int[,] array)
         {
@@ -203,8 +197,7 @@ namespace Console
             return true;
         }
         static void addRow(ref decimal[] input, decimal rowValue)
-        {
-            
+        {            
             decimal[] newArr = new decimal[input.Length + 1];
             if (input == null)
             {
